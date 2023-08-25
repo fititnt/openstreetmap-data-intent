@@ -1,0 +1,5 @@
+- OpenStreetMap data intent
+  - tagging: 
+    - amenity=drinking_water
+  - place: Relation Porto Alegre (242397)
+  - operation: inside
