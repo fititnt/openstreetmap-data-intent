@@ -1,0 +1,17 @@
+{
+    "osmdm_tags": [
+        "amenity=drinking_water"
+    ],
+    "_items": {
+        "type": "TagValue",
+        "data": "amenity=drinking_water",
+        "osmelements": null
+    },
+    "osmdi_intent": {
+        "osmd_place": {
+            "_name:pt": "Porto Alegre",
+            "@id": "osmr:242397"
+        },
+        "osmdi": "inside"
+    }
+}
