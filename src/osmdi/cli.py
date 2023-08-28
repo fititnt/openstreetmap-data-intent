@@ -52,6 +52,14 @@ def main():
         help="MediaWiki page titles of input, Use | as separator",
     )
 
+    # @TODO remove the rest
+    parser_input.add_argument(
+        "--input-osmdi-compact",
+        help="OSM data intent, compact input file",
+        dest="in_compact",
+        # action="store_true",
+    )
+
     parser_input.add_argument(
         "--pageids", help="MediaWiki pageids of input, Use | as separator"
     )
@@ -164,6 +172,15 @@ def main():
 
     args.page_title = args.titles
     # print(args.page_title)
+
+    if (
+        args.in_compact
+    ):
+        print('TODO')
+        return EXIT_ERROR
+
+    print('TODO remove old code')
+
 
     if (
         not args.page_title

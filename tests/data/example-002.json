@@ -1,0 +1,9 @@
+[
+    [
+        "highway=residential"
+    ],
+    [
+        "highway=service",
+        "access=yes"
+    ]
+]
