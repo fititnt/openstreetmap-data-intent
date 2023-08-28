@@ -1,3 +1,4 @@
-requests
-requests-cache
-wikitextparser
+# requests
+# requests-cache
+# wikitextparser
+pyyaml
