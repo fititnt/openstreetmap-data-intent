@@ -1,0 +1,32 @@
+{
+    "_description": "A hospital facility (not a building) open, not explicitly with fees",
+    "osmm": [
+        [
+            "amenity=hospital"
+        ],
+        [
+            "healthcare=hospital"
+        ]
+    ],
+    "osmm_not": [
+        [
+            "fee=yes"
+        ],
+        [
+            "opening_hours=24/7 off"
+        ],
+        [
+            "access=no"
+        ],
+        [
+            "access=private"
+        ],
+        [
+            "operator:type=private"
+        ]
+    ],
+    "wikidata": [
+        "Q16917"
+    ]
+    
+}

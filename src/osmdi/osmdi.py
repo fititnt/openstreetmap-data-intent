@@ -29,11 +29,21 @@ class OsmDI:
     """OpenStreetMap data intent main entrypoint"""
 
     initial_ast: None
+    initial_wdata: None
 
     def __init__(self, osmdi_ast_raw: str) -> None:
         osmdi_ast = osmdi_input_parser(osmdi_ast_raw)
-        self.initial_ast = osmdi_ast
-        pass
+        self.initial_wdata = None
+
+        if isinstance(osmdi_ast, list):
+            self.initial_ast = osmdi_ast
+        if isinstance(osmdi_ast, dict) and "osmm" in osmdi_ast:
+            self.initial_ast = osmdi_ast["osmm"]
+            if "wikidata" in osmdi_ast:
+                self.initial_wdata = osmdi_ast["wikidata"]
+
+        else:
+            self.initial_ast = osmdi_ast
 
     def debug(self, as_json: bool = False):
         # print(self.initial_ast)
@@ -41,7 +51,8 @@ class OsmDI:
         driver_ps = OsmDIDriverPassthrough(self.initial_ast)
         driver_dwl = OsmDIDriverDocWikiLinks(self.initial_ast)
         driver_dti = OsmDIDriverDocTaginfo(self.initial_ast)
-        driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
+        # driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
+        driver_pql = OsmDIDriverPseudoQL(self.initial_ast)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
@@ -49,10 +60,14 @@ class OsmDI:
                 "driver": {
                     driver_dwl.driver_id: driver_dwl.output(),
                     driver_dti.driver_id: driver_dti.output(),
-                    driver_oqt.driver_id: driver_oqt.output(),
+                    # driver_oqt.driver_id: driver_oqt.output(),
+                    driver_pql.driver_id: driver_pql.output(),
                 }
             },
         }
+
+        if self.initial_wdata:
+            debug_out["input"]["wikidata"] = self.initial_wdata
 
         # debug_out.
 
@@ -73,6 +88,14 @@ class OsmDIDriver(ABC):
         self.driver_id = "D0"
 
         self.__post_init__()
+
+    def get_option(self, key: str):
+        defaults = {"outfmt": "osm"}
+
+        if key in defaults:
+            return defaults[key]
+
+        return None
 
 
 class OsmDIDriverDocTaginfo(OsmDIDriver):
@@ -153,9 +176,19 @@ class OsmDIDriverOverpassQLTurbo(OsmDIDriver):
     def __post_init__(self):
         self.driver_id = "D41"
 
-    def output(self):
+    def _get_query(self) -> str:
+        parts = []
 
-        test = """
+        for group in self.osmdi_ast:
+            parts.append(self._get_query_block(group))
+            # for item in group:
+            #     # @TODO deal with other commands than tags themselves
+            #     tags.add(item)
+
+        return parts
+
+        query = """
+# @TODO OsmDIDriverOverpassQLTurbo
 (
   node["crop"="rice"]({{bbox}});
   way["crop"="rice"]({{bbox}});
@@ -165,8 +198,29 @@ out body;
 >;
 out skel qt;
 """
+        return query
 
-        return "TODO OsmDIDriverOverpassQLTurbo"  + test
+    def _get_query_block(self, group: list) -> str:
+        # parts =
+        # for item in group:
+
+        query = """
+# @TODO OsmDIDriverOverpassQLTurbo
+(
+  node["crop"="rice"]({{bbox}});
+  way["crop"="rice"]({{bbox}});
+  relation["crop"="rice"]({{bbox}});
+);
+out body;
+>;
+out skel qt;
+"""
+        return query
+
+    def output(self):
+        test = self._get_query()
+
+        return test
         out = {}
         for option in self._get_tagvalues():
             # _encoded = urllib.parse.quote(option)
@@ -183,6 +237,39 @@ class OsmDIDriverPassthrough(OsmDIDriver):
 
     def output(self):
         return self.osmdi_ast
+
+
+class OsmDIDriverPseudoQL(OsmDIDriver):
+    """PseudoQL driver"""
+
+    def __post_init__(self):
+        self.driver_id = "D9"
+
+    def output(self):
+        # return "TODO OsmDIDriverPseudoQL"
+
+        parts = []
+        for group in self.osmdi_ast:
+            elements = "nwr"
+            area = "({{bbox}})"
+
+            group_str = ""
+            for item in group:
+                key, val = item.split("=")
+                group_str += f'["{key}"="{val}"]'
+
+            # parts.append(elements + str(group) + area)
+            parts.append(elements + group_str + area)
+            # for item in group:
+            #     parts.
+
+        # _rules = " ;\n  ".join(parts) + ';'
+
+        templated = "(\n  " + " ;\n  ".join(parts) + " ;" + "\n)->._;"
+
+        # return  " + ".join(parts) + ';'
+        # return  " ; ".join(parts) + ';'
+        return templated
 
 
 def osmdi_input_parser(data_ptr: str) -> dict:
