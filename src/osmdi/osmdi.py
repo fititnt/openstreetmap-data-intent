@@ -41,6 +41,7 @@ class OsmDI:
         driver_ps = OsmDIDriverPassthrough(self.initial_ast)
         driver_dwl = OsmDIDriverDocWikiLinks(self.initial_ast)
         driver_dti = OsmDIDriverDocTaginfo(self.initial_ast)
+        driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
@@ -48,6 +49,7 @@ class OsmDI:
                 "driver": {
                     driver_dwl.driver_id: driver_dwl.output(),
                     driver_dti.driver_id: driver_dti.output(),
+                    driver_oqt.driver_id: driver_oqt.output(),
                 }
             },
         }
@@ -122,15 +124,54 @@ class OsmDIDriverDocWikiLinks(OsmDIDriver):
         return list(tags)
 
     def output(self):
-        # return self.osmdi_ast
-        # return "todo"
-
         out = {}
         for option in self._get_tagvalues():
             _encoded = urllib.parse.quote(option)
             out[option] = f"https://wiki.openstreetmap.org/wiki/Tag:{_encoded}"
+        return out
 
-        # return self._get_tagvalues()
+
+class OsmDIDriverOverpassQL(OsmDIDriver):
+    """OverpassQL driver"""
+
+    def __post_init__(self):
+        self.driver_id = "D4"
+
+    def output(self):
+        return "TODO OsmDIDriverOverpassQL"
+        out = {}
+        for option in self._get_tagvalues():
+            # _encoded = urllib.parse.quote(option)
+            out[option] = f"https://taginfo.openstreetmap.org/tags/{option}"
+
+        return out
+
+
+class OsmDIDriverOverpassQLTurbo(OsmDIDriver):
+    """OverpassQL driver"""
+
+    def __post_init__(self):
+        self.driver_id = "D41"
+
+    def output(self):
+
+        test = """
+(
+  node["crop"="rice"]({{bbox}});
+  way["crop"="rice"]({{bbox}});
+  relation["crop"="rice"]({{bbox}});
+);
+out body;
+>;
+out skel qt;
+"""
+
+        return "TODO OsmDIDriverOverpassQLTurbo"  + test
+        out = {}
+        for option in self._get_tagvalues():
+            # _encoded = urllib.parse.quote(option)
+            out[option] = f"https://taginfo.openstreetmap.org/tags/{option}"
+
         return out
 
 
