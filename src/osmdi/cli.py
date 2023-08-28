@@ -175,12 +175,12 @@ def main():
     # print(args.page_title)
 
     if args.in_compact:
-        print("TODO")
+        # print("TODO")
         osmdi = OsmDI(args.in_compact)
-        osmdi.debug()
+        osmdi.debug(True)
         return EXIT_ERROR
 
-    print("TODO remove old code")
+    # print("TODO remove old code")
 
     return EXIT_ERROR
 
