@@ -164,6 +164,12 @@ def main():
 
     args = parser.parse_args()
 
+    from .datafetch import DataFetch
+
+    df = DataFetch()
+    df.debug()
+    return EXIT_ERROR
+
     # print(args)
 
     # wikitext = None

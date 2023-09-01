@@ -131,4 +131,5 @@ dmypy.json
 
 #### ___________________________________________________________________________
 wikiasbase.sqlite
+osmdicache.sqlite
 tests/data/temp.wiki.txt
