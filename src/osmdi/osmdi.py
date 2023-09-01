@@ -21,6 +21,7 @@
 # ==============================================================================
 from abc import ABC
 import json
+from typing import Type
 import urllib.parse
 import yaml
 
@@ -30,13 +31,16 @@ from osmdi.datafetch import WikibaseFetch
 class OsmDI:
     """OpenStreetMap data intent main entrypoint"""
 
-    initial_ast: None
-    initial_ast_not: None
-    initial_dataitem: None
-    initial_wdata: None
+    # initial_ast: None
+    # initial_ast_not: None
+    # initial_dataitem: None
+    # initial_wdata: None
 
     def __init__(self, osmdi_ast_raw: str) -> None:
         osmdi_ast = osmdi_input_parser(osmdi_ast_raw)
+        self.initial_ast = None
+        self.initial_ast_not = None
+        self.initial_dataitem = None
         self.initial_wdata = None
 
         if isinstance(osmdi_ast, list):
@@ -57,12 +61,11 @@ class OsmDI:
     def debug(self, as_json: bool = False):
         # print(self.initial_ast)
 
-        driver_ps = OsmDIDriverPassthrough(self.initial_ast)
-        driver_dwl = OsmDIDriverDocWikiLinks(self.initial_ast)
-        driver_dti = OsmDIDriverDocTaginfo(self.initial_ast)
-        # driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
-        driver_pql = OsmDIDriverPseudoQL(self.initial_ast)
-        driver_wdi = OsmDIDriverWikibaseDataItem(dataitem=self.initial_dataitem)
+        driver_ps = OsmDIDriverPassthrough(self)
+        driver_dwl = OsmDIDriverDocWikiLinks(self)
+        driver_dti = OsmDIDriverDocTaginfo(self)
+        driver_pql = OsmDIDriverPseudoQL(self)
+        driver_wdi = OsmDIDriverWikibaseDataItem(self)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
@@ -77,17 +80,6 @@ class OsmDI:
             },
         }
 
-        if self.initial_dataitem:
-            debug_out["input"]["di_dataitem"] = self.initial_dataitem
-
-        if self.initial_wdata:
-            debug_out["input"]["di_wikidata"] = self.initial_wdata
-
-        # debug_out.
-
-        # print(driver_ps.output())
-        # print(driver_ps)
-
         if as_json:
             print(json.dumps(debug_out, ensure_ascii=False, indent=2))
         else:
@@ -99,16 +91,10 @@ class OsmDIDriver(ABC):
 
     def __init__(
         self,
-        osmdi_ast: list = None,
-        osmdi_not: list = None,
-        dataitem: list = None,
-        wikidata: list = None,
+        osmdi: Type["OsmDI"],
     ) -> None:
-        self.osmdi_ast = osmdi_ast
-        self.osmdi_not = osmdi_not
-        self.dataitem = dataitem
-        self.wikidata = wikidata
         self.driver_id = "D0"
+        self.osmdi = osmdi
 
         self.__post_init__()
 
@@ -131,6 +117,8 @@ class OsmDIDriverDocTaginfo(OsmDIDriver):
 
     def __post_init__(self):
         self.driver_id = "D3"
+
+        self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_tagvalues(self):
         tags = set()
@@ -160,6 +148,7 @@ class OsmDIDriverDocWikiLinks(OsmDIDriver):
 
     def __post_init__(self):
         self.driver_id = "D2"
+        self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_tagvalues(self):
         tags = set()
@@ -198,6 +187,7 @@ class OsmDIDriverOverpassQLTurbo(OsmDIDriver):
 
     def __post_init__(self):
         self.driver_id = "D41"
+        self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_query(self) -> str:
         parts = []
@@ -259,7 +249,17 @@ class OsmDIDriverPassthrough(OsmDIDriver):
         self.driver_id = "D1"
 
     def output(self):
-        return self.osmdi_ast
+        output = {}
+        if self.osmdi.initial_ast:
+            output["di"] = self.osmdi.initial_ast
+        if self.osmdi.initial_ast_not:
+            output["di_not"] = self.osmdi.initial_ast_not
+        if self.osmdi.initial_dataitem:
+            output["di_dataitem"] = self.osmdi.initial_dataitem
+        if self.osmdi.initial_wdata:
+            output["di_wikidata"] = self.osmdi.initial_wdata
+
+        return output
 
 
 class OsmDIDriverPseudoQL(OsmDIDriver):
@@ -267,6 +267,7 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
 
     def __post_init__(self):
         self.driver_id = "D9"
+        self.osmdi_ast = self.osmdi.initial_ast
 
     def output(self):
         # return "TODO OsmDIDriverPseudoQL"
@@ -303,12 +304,11 @@ class OsmDIDriverWikibaseDataItem(OsmDIDriver):
 
     def output(self):
         # return "TODO OsmDIDriverPseudoQL"
-
-        if not self.dataitem:
+        # self.osmdi_ast = self.osmdi.initial_ast
+        if not self.osmdi.initial_dataitem:
             return None
 
-        wbfetch = WikibaseFetch(self.dataitem)
-
+        wbfetch = WikibaseFetch(self.osmdi.initial_dataitem)
 
         # TODO fetch the data
         # return self.dataitem

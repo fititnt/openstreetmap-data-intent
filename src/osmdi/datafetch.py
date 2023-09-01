@@ -61,8 +61,8 @@ class WikibaseFetch:
                 _url = self.base + id + ".json"
                 respnow = apiresp.get_url(_url)
                 parsed = wikibase_to_osmtags(respnow, [id], wikibase_prefix=self.prefix)
-                self._result.append(parsed)
-                self._result.append(respnow)
+                self._result.extend(parsed)
+                # self._result.append(respnow)
 
             # self._result = apiresp.get_url()
 
@@ -108,26 +108,17 @@ def wikibase_to_osmtags(wikibase_resp: str, ids: list, wikibase_prefix: str = "o
 
             if "descriptions" in active:
                 for lang in active["descriptions"]:
-                    if isinstance(active["descriptions"][lang], str):
-                        item.append(
-                            f"description:{lang}={active['descriptions'][lang]['value']}"
-                        )
-                    else:
-                        value_list = []
-                        item.append(active["descriptions"][lang])
-                        # for _i in active["descriptions"][lang]:
-                        #     value_list.append(_i['value'])
-                    #     result = "␞".join(value_list)
-                    #     result_scaped = result.replace(";", ";;")
-                    #     # final_value = result_scaped.replace(0xE2, ";")
-                    #     final_value = result_scaped.replace("␞", ";")
-                    #     item.append(f"description:{lang}={final_value}")
+                    item.append(
+                        f"description:{lang}={active['descriptions'][lang]['value']}"
+                    )
 
             if "labels" in active:
                 for lang in active["labels"]:
                     item.append(f"name:{lang}={active['labels'][lang]['value']}")
 
-        items.extend(item)
+            item.sort()
+            items.append(item)
+
     except Exception as err:
         return ["#wikibase_to_osmtags err", str(err)]
 
