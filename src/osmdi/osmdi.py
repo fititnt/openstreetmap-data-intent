@@ -24,6 +24,8 @@ import json
 import urllib.parse
 import yaml
 
+from osmdi.datafetch import WikibaseFetch
+
 
 class OsmDI:
     """OpenStreetMap data intent main entrypoint"""
@@ -60,7 +62,7 @@ class OsmDI:
         driver_dti = OsmDIDriverDocTaginfo(self.initial_ast)
         # driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
         driver_pql = OsmDIDriverPseudoQL(self.initial_ast)
-        driver_wdi = OsmDIDriverWikibaseDataItem(self.initial_ast)
+        driver_wdi = OsmDIDriverWikibaseDataItem(dataitem=self.initial_dataitem)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
@@ -70,6 +72,7 @@ class OsmDI:
                     driver_dti.driver_id: driver_dti.output(),
                     # driver_oqt.driver_id: driver_oqt.output(),
                     driver_pql.driver_id: driver_pql.output(),
+                    driver_wdi.driver_id: driver_wdi.output(),
                 }
             },
         }
@@ -301,11 +304,15 @@ class OsmDIDriverWikibaseDataItem(OsmDIDriver):
     def output(self):
         # return "TODO OsmDIDriverPseudoQL"
 
-        if not self.initial_dataitem:
+        if not self.dataitem:
             return None
 
+        wbfetch = WikibaseFetch(self.dataitem)
+
+
         # TODO fetch the data
-        return self.initial_dataitem
+        # return self.dataitem
+        return wbfetch.get_as_osm_tags()
 
 
 def osmdi_input_parser(data_ptr: str) -> dict:
