@@ -164,11 +164,11 @@ def main():
 
     args = parser.parse_args()
 
-    from .datafetch import DataFetch
+    # from .datafetch import DataFetch
 
-    df = DataFetch()
-    df.debug()
-    return EXIT_ERROR
+    # df = DataFetch()
+    # df.debug()
+    # return EXIT_ERROR
 
     # print(args)
 

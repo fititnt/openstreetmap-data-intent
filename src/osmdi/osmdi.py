@@ -29,6 +29,8 @@ class OsmDI:
     """OpenStreetMap data intent main entrypoint"""
 
     initial_ast: None
+    initial_ast_not: None
+    initial_dataitem: None
     initial_wdata: None
 
     def __init__(self, osmdi_ast_raw: str) -> None:
@@ -37,13 +39,18 @@ class OsmDI:
 
         if isinstance(osmdi_ast, list):
             self.initial_ast = osmdi_ast
+
         if isinstance(osmdi_ast, dict) and "osmm" in osmdi_ast:
             self.initial_ast = osmdi_ast["osmm"]
+
             if "wikidata" in osmdi_ast:
                 self.initial_wdata = osmdi_ast["wikidata"]
 
-        else:
-            self.initial_ast = osmdi_ast
+            if "dataitem" in osmdi_ast:
+                self.initial_dataitem = osmdi_ast["dataitem"]
+
+            if "osmm_not" in osmdi_ast:
+                self.initial_ast_not = osmdi_ast["osmm_not"]
 
     def debug(self, as_json: bool = False):
         # print(self.initial_ast)
@@ -53,6 +60,7 @@ class OsmDI:
         driver_dti = OsmDIDriverDocTaginfo(self.initial_ast)
         # driver_oqt = OsmDIDriverOverpassQLTurbo(self.initial_ast)
         driver_pql = OsmDIDriverPseudoQL(self.initial_ast)
+        driver_wdi = OsmDIDriverWikibaseDataItem(self.initial_ast)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
@@ -66,8 +74,11 @@ class OsmDI:
             },
         }
 
+        if self.initial_dataitem:
+            debug_out["input"]["di_dataitem"] = self.initial_dataitem
+
         if self.initial_wdata:
-            debug_out["input"]["wikidata"] = self.initial_wdata
+            debug_out["input"]["di_wikidata"] = self.initial_wdata
 
         # debug_out.
 
@@ -83,8 +94,17 @@ class OsmDI:
 class OsmDIDriver(ABC):
     """OsmDIDriver abstract class for all drivers"""
 
-    def __init__(self, osmdi_ast: str) -> None:
+    def __init__(
+        self,
+        osmdi_ast: list = None,
+        osmdi_not: list = None,
+        dataitem: list = None,
+        wikidata: list = None,
+    ) -> None:
         self.osmdi_ast = osmdi_ast
+        self.osmdi_not = osmdi_not
+        self.dataitem = dataitem
+        self.wikidata = wikidata
         self.driver_id = "D0"
 
         self.__post_init__()
@@ -270,6 +290,22 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
         # return  " + ".join(parts) + ';'
         # return  " ; ".join(parts) + ';'
         return templated
+
+
+class OsmDIDriverWikibaseDataItem(OsmDIDriver):
+    """Wikibase Data Items (OpenStreetMap) driver"""
+
+    def __post_init__(self):
+        self.driver_id = "D10"
+
+    def output(self):
+        # return "TODO OsmDIDriverPseudoQL"
+
+        if not self.initial_dataitem:
+            return None
+
+        # TODO fetch the data
+        return self.initial_dataitem
 
 
 def osmdi_input_parser(data_ptr: str) -> dict:

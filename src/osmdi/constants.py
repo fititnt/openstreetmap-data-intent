@@ -29,3 +29,4 @@ USER_AGENT = os.getenv("USER_AGENT", _USER_AGENT_MERGED)
 # CACHE_TTL = int(os.getenv("CACHE_TTL", "3600"))  # 1 hour
 CACHE_TTL = int(os.getenv("CACHE_TTL", "82800"))  # 23 hours
 CACHE_DBNAME = os.getenv("CACHE_DBNAME", "osmdicache.sqlite")
+CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
