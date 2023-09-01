@@ -66,16 +66,20 @@ class OsmDI:
         driver_dti = OsmDIDriverDocTaginfo(self)
         driver_pql = OsmDIDriverPseudoQL(self)
         driver_wdi = OsmDIDriverWikibaseDataItem(self)
+        driver_wdata = OsmDIDriverWikibaseWikidata(self)
+        driver_wdata_q1 = OsmDIDriverWikibaseWikidata(self).set_mode(1)
 
         debug_out = {
             "input": {"di": driver_ps.output()},
             "output": {
                 "driver": {
-                    driver_dwl.driver_id: driver_dwl.output(),
-                    driver_dti.driver_id: driver_dti.output(),
+                    driver_dwl.get_id(): driver_dwl.output(),
+                    driver_dti.get_id(): driver_dti.output(),
                     # driver_oqt.driver_id: driver_oqt.output(),
-                    driver_pql.driver_id: driver_pql.output(),
-                    driver_wdi.driver_id: driver_wdi.output(),
+                    driver_pql.get_id(): driver_pql.output(),
+                    driver_wdi.get_id(): driver_wdi.output(),
+                    driver_wdata.get_id(): driver_wdata.output(),
+                    driver_wdata_q1.get_id(): driver_wdata_q1.output(),
                 }
             },
         }
@@ -93,10 +97,19 @@ class OsmDIDriver(ABC):
         self,
         osmdi: Type["OsmDI"],
     ) -> None:
-        self.driver_id = "D0"
         self.osmdi = osmdi
+        self._driver_id: str = "D0"
+        self._subcode: int = 0
+
+        # @TODO implement generic error handling at base driver class
+        self._errors = []
 
         self.__post_init__()
+
+    def get_id(self):
+        if self._subcode < 1:
+            return self._driver_id
+        return self._driver_id + "." + str(self._subcode)
 
     def get_option(self, key: str):
         defaults = {"outfmt": "osm"}
@@ -105,6 +118,10 @@ class OsmDIDriver(ABC):
             return defaults[key]
 
         return None
+
+    def set_mode(self, subcode: int = None):
+        self._subcode = subcode
+        return self
 
 
 class OsmDIDriverDocTaginfo(OsmDIDriver):
@@ -116,7 +133,7 @@ class OsmDIDriverDocTaginfo(OsmDIDriver):
     """
 
     def __post_init__(self):
-        self.driver_id = "D3"
+        self._driver_id = "D3"
 
         self.osmdi_ast = self.osmdi.initial_ast
 
@@ -129,12 +146,8 @@ class OsmDIDriverDocTaginfo(OsmDIDriver):
         return list(tags)
 
     def output(self):
-        # return self.osmdi_ast
-        # return "todo"
-
         out = {}
         for option in self._get_tagvalues():
-            # _encoded = urllib.parse.quote(option)
             out[option] = f"https://taginfo.openstreetmap.org/tags/{option}"
 
         return out
@@ -147,7 +160,7 @@ class OsmDIDriverDocWikiLinks(OsmDIDriver):
     """
 
     def __post_init__(self):
-        self.driver_id = "D2"
+        self._driver_id = "D2"
         self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_tagvalues(self):
@@ -170,7 +183,7 @@ class OsmDIDriverOverpassQL(OsmDIDriver):
     """OverpassQL driver"""
 
     def __post_init__(self):
-        self.driver_id = "D4"
+        self._driver_id = "D4"
 
     def output(self):
         return "TODO OsmDIDriverOverpassQL"
@@ -186,7 +199,7 @@ class OsmDIDriverOverpassQLTurbo(OsmDIDriver):
     """OverpassQL driver"""
 
     def __post_init__(self):
-        self.driver_id = "D41"
+        self._driver_id = "D41"
         self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_query(self) -> str:
@@ -246,7 +259,7 @@ class OsmDIDriverPassthrough(OsmDIDriver):
     """Passthrough driver. Input "pass through" unaltered"""
 
     def __post_init__(self):
-        self.driver_id = "D1"
+        self._driver_id = "D1"
 
     def output(self):
         output = {}
@@ -266,12 +279,10 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
     """PseudoQL driver"""
 
     def __post_init__(self):
-        self.driver_id = "D9"
+        self._driver_id = "D9"
         self.osmdi_ast = self.osmdi.initial_ast
 
     def output(self):
-        # return "TODO OsmDIDriverPseudoQL"
-
         parts = []
         for group in self.osmdi_ast:
             elements = "nwr"
@@ -284,35 +295,77 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
 
             # parts.append(elements + str(group) + area)
             parts.append(elements + group_str + area)
-            # for item in group:
-            #     parts.
-
-        # _rules = " ;\n  ".join(parts) + ';'
 
         templated = "(\n  " + " ;\n  ".join(parts) + " ;" + "\n)->._;"
-
-        # return  " + ".join(parts) + ';'
-        # return  " ; ".join(parts) + ';'
         return templated
 
 
 class OsmDIDriverWikibaseDataItem(OsmDIDriver):
-    """Wikibase Data Items (OpenStreetMap) driver"""
+    """Wikibase Data Items (OpenStreetMap) driver
+
+    @TODO implement query, at least the Sophox strategy.
+          see https://wiki.openstreetmap.org/wiki/Sophox
+
+    """
 
     def __post_init__(self):
-        self.driver_id = "D10"
+        self._driver_id = "D10"
 
     def output(self):
-        # return "TODO OsmDIDriverPseudoQL"
-        # self.osmdi_ast = self.osmdi.initial_ast
         if not self.osmdi.initial_dataitem:
             return None
 
         wbfetch = WikibaseFetch(self.osmdi.initial_dataitem)
-
-        # TODO fetch the data
-        # return self.dataitem
         return wbfetch.get_as_osm_tags()
+
+
+class OsmDIDriverWikibaseWikidata(OsmDIDriver):
+    """Wikibase Wikidata driver"""
+
+    def __post_init__(self):
+        self._driver_id = "D11"
+
+    def _get_mode_1(self) -> str:
+        items = self.osmdi.initial_wdata
+        if len(items) != 1 or items[0][0] != "Q":
+            message = f"NotImplementedError for options <[{str( self.osmdi.initial_wdata)}]>  <{items[0][0]}> <{len(items)}>"
+            self._errors.append(message)
+            return message
+
+        main_item = items[0]
+        # main_item = 'lala'
+
+        templated = f"""SELECT DISTINCT ?item ?itemLabel WHERE {{
+  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }}
+  {{
+    SELECT DISTINCT ?item WHERE {{
+      {{
+        ?item p:P31 ?statement0.
+        ?statement0 (ps:P31/(wdt:P279*)) wd:{main_item}.
+        FILTER(EXISTS {{ ?statement0 prov:wasDerivedFrom ?reference. }})
+      }}
+    }}
+    # LIMIT 100
+  }}
+}}
+"""
+        return templated
+
+    def output(self):
+        if not self.osmdi.initial_wdata:
+            return None
+
+        wbfetch = WikibaseFetch(
+            self.osmdi.initial_wdata,
+            prefix="wikidata",
+            base="https://www.wikidata.org/wiki/Special:EntityData/",
+        )
+
+        if self._subcode == 0:
+            return wbfetch.get_as_osm_tags()
+        if self._subcode == 1:
+            return self._get_mode_1()
+        raise NotImplementedError
 
 
 def osmdi_input_parser(data_ptr: str) -> dict:
