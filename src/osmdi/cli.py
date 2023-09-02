@@ -25,7 +25,13 @@ EXIT_SYNTAX = 2  # pylint: disable=invalid-name
 def main():
     parser = argparse.ArgumentParser(
         prog="osmdi",
-        description="Use MediaWiki Wiki page content as read-only database",
+        description="openstreetmap-data-intent proof of concept",
+    )
+
+    parser.add_argument(
+        'infile',
+        help='Osmdi file (if omitted, use standard input).',
+        nargs='?'
     )
 
     # parser.add_argument(
@@ -43,9 +49,9 @@ def main():
     # added --titles as aliases existing --page-title
     # parser.add_argument("--page-title", help="Page title of input")
 
-    parser_input = parser.add_argument_group(
-        "input", "Input data. Select ONE of these options"
-    )
+    # parser_input = parser.add_argument_group(
+    #     "input", "Input data. Select ONE of these options"
+    # )
 
     # parser_input.add_argument(
     #     "--titles",
@@ -53,13 +59,13 @@ def main():
     #     help="MediaWiki page titles of input, Use | as separator",
     # )
 
-    # @TODO remove the rest
-    parser_input.add_argument(
-        "--input-osmdi-compact",
-        help="OSM data intent, compact input file",
-        dest="in_compact",
-        # action="store_true",
-    )
+    # # @TODO remove the rest
+    # parser_input.add_argument(
+    #     "--input-osmdi-compact",
+    #     help="OSM data intent, compact input file",
+    #     dest="in_compact",
+    #     # action="store_true",
+    # )
 
     # parser_input.add_argument(
     #     "--pageids", help="MediaWiki pageids of input, Use | as separator"
@@ -180,11 +186,18 @@ def main():
     # args.page_title = args.titles
     # print(args.page_title)
 
-    if args.in_compact:
-        # print("TODO")
-        osmdi = OsmDI(args.in_compact)
-        osmdi.debug(True)
-        return EXIT_ERROR
+    # print("TODO")
+    # osmdi = OsmDI(args.in_compact)
+    osmdi = OsmDI(args.infile)
+    osmdi.debug(True)
+    return EXIT_OK
+    # return EXIT_ERROR
+
+    # if args.in_compact:
+    #     # print("TODO")
+    #     osmdi = OsmDI(args.in_compact)
+    #     osmdi.debug(True)
+    #     return EXIT_ERROR
 
     # print("TODO remove old code")
 

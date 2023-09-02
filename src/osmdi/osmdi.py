@@ -70,9 +70,11 @@ class OsmDI:
         driver_wdata_q1 = OsmDIDriverWikibaseWikidata(self).set_mode(1)
 
         debug_out = {
-            "input": driver_ps.output(),
-            "output": {
-                "driver": {
+            # "input": driver_ps.output(),
+            "1": driver_ps.output(),
+            # "output": {
+            "3": {
+                # "driver": {
                     driver_dwl.get_id(): driver_dwl.output(),
                     driver_dti.get_id(): driver_dti.output(),
                     # driver_oqt.driver_id: driver_oqt.output(),
@@ -80,7 +82,7 @@ class OsmDI:
                     driver_wdi.get_id(): driver_wdi.output(),
                     driver_wdata.get_id(): driver_wdata.output(),
                     driver_wdata_q1.get_id(): driver_wdata_q1.output(),
-                }
+                # }
             },
         }
 
@@ -98,7 +100,8 @@ class OsmDIDriver(ABC):
         osmdi: Type["OsmDI"],
     ) -> None:
         self.osmdi = osmdi
-        self._driver_id: str = "D0"
+        # self._driver_id: str = "D0"
+        self._driver_id: str = "0"
         self._subcode: int = 0
 
         # @TODO implement generic error handling at base driver class
@@ -133,7 +136,8 @@ class OsmDIDriverDocTaginfo(OsmDIDriver):
     """
 
     def __post_init__(self):
-        self._driver_id = "D3"
+        # self._driver_id = "D3"
+        self._driver_id = "3"
 
         self.osmdi_ast = self.osmdi.initial_ast
 
@@ -160,7 +164,8 @@ class OsmDIDriverDocWikiLinks(OsmDIDriver):
     """
 
     def __post_init__(self):
-        self._driver_id = "D2"
+        # self._driver_id = "D2"
+        self._driver_id = "2"
         self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_tagvalues(self):
@@ -183,7 +188,8 @@ class OsmDIDriverOverpassQL(OsmDIDriver):
     """OverpassQL driver"""
 
     def __post_init__(self):
-        self._driver_id = "D4"
+        # self._driver_id = "D4"
+        self._driver_id = "4"
 
     def output(self):
         return "TODO OsmDIDriverOverpassQL"
@@ -259,7 +265,8 @@ class OsmDIDriverPassthrough(OsmDIDriver):
     """Passthrough driver. Input "pass through" unaltered"""
 
     def __post_init__(self):
-        self._driver_id = "D1"
+        # self._driver_id = "D1"
+        self._driver_id = "1"
 
     def output(self):
         output = {}
@@ -279,7 +286,8 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
     """PseudoQL driver"""
 
     def __post_init__(self):
-        self._driver_id = "D9"
+        # self._driver_id = "D9"
+        self._driver_id = "9"
         self.osmdi_ast = self.osmdi.initial_ast
 
     def output(self):
@@ -309,7 +317,8 @@ class OsmDIDriverWikibaseDataItem(OsmDIDriver):
     """
 
     def __post_init__(self):
-        self._driver_id = "D10"
+        # self._driver_id = "D10"
+        self._driver_id = "10"
 
     def output(self):
         if not self.osmdi.initial_dataitem:
@@ -323,7 +332,8 @@ class OsmDIDriverWikibaseWikidata(OsmDIDriver):
     """Wikibase Wikidata driver"""
 
     def __post_init__(self):
-        self._driver_id = "D11"
+        # self._driver_id = "D11"
+        self._driver_id = "11"
 
     def _get_mode_1(self) -> str:
         items = self.osmdi.initial_wdata

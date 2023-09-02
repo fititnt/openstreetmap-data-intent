@@ -1,8 +1,6 @@
 0: # meta information
     1: "Example file with all top level options"
-1: # E, environment options
-  - ""
-2: # I, input variables
+1: # I, input variables
     0: # meta information
         _description: A hospital facility (not a building) open, not explicitly with fees
     1: # osmm
@@ -20,6 +18,8 @@
     10: # wikidata
         - Q16917
     3: # O. output variables
+2: # E, environment options
+  - ""
 3: # O, output (potentially cached)
     0: [""] # meta
     2: [""]

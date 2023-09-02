@@ -1,7 +1,7 @@
 #!/bin/sh
 
-osmdi --input-osmdi-compact tests/data/example-002.json | yq -P
-osmdi --input-osmdi-compact tests/data/example-003.json | yq -P
+osmdicli tests/data/example-002.json | yq -P
+osmdicli tests/data/example-003.json | yq -P
 yq < tests/data/example-003.json -o props
 yq < tests/data/example-004.num.yml -o props
 
