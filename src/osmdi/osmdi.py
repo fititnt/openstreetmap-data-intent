@@ -26,6 +26,7 @@ import urllib.parse
 import yaml
 
 from osmdi.datafetch import WikibaseFetch
+from osmdi.exporter import yaml_dumper
 
 
 class OsmDI:
@@ -58,7 +59,7 @@ class OsmDI:
             if "osmm_not" in osmdi_ast:
                 self.initial_ast_not = osmdi_ast["osmm_not"]
 
-    def debug(self, as_json: bool = False):
+    def debug(self, as_yaml: bool = False):
         # print(self.initial_ast)
 
         driver_ps = OsmDIDriverPassthrough(self)
@@ -86,8 +87,12 @@ class OsmDI:
             },
         }
 
-        if as_json:
-            print(json.dumps(debug_out, ensure_ascii=False, indent=2))
+        if as_yaml:
+
+            # yaml.dump()
+            # print(json.dumps(debug_out, ensure_ascii=False, indent=2))
+            # print(yaml.dump(debug_out, allow_unicode=True, indent=2, sort_keys=True, default_flow_style=False, line_break=True))
+            print(yaml_dumper(debug_out))
         else:
             print(debug_out)
 

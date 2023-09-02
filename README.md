@@ -45,3 +45,9 @@ Some early comments (2023-09-02) on _how_ to do it (subject to change):
 - `1`: input data
 - `2`: environment data (optional)
 - `3`: output data (optional)
+
+### 1: en, input data
+#### 1.1: en, natural language expalantion, from developer to developer
+#### 1.2: en, natural language example of averange user query
+#### 1.3: OpenStreetMap tags for select data
+#### 1.4: OpenStreetMap tags for exclude data
