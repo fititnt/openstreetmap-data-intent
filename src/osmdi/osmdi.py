@@ -70,7 +70,7 @@ class OsmDI:
         driver_wdata_q1 = OsmDIDriverWikibaseWikidata(self).set_mode(1)
 
         debug_out = {
-            "input": {"di": driver_ps.output()},
+            "input": driver_ps.output(),
             "output": {
                 "driver": {
                     driver_dwl.get_id(): driver_dwl.output(),
