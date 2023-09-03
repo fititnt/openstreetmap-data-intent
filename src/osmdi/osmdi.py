@@ -21,7 +21,7 @@
 # ==============================================================================
 from abc import ABC
 import sys
-from typing import Type, Union
+from typing import List, Type, Union
 import urllib.parse
 import yaml
 
@@ -64,7 +64,7 @@ class OsmDI:
     def _get_from_key(
         self, data_block: dict, key: int, subkey: int = None
     ) -> Union[dict, list, str, int]:
-        """_summary_
+        """Get internal data by key/subkey
 
         Args:
             data_block (dict): data to slice
@@ -91,6 +91,9 @@ class OsmDI:
 
         return main
 
+    def get_2_env(self, subkey: int):
+        return self._get_from_key(self.initial_2, subkey)
+
     def debug(self):
         # print(self.initial_ast)
 
@@ -106,7 +109,7 @@ class OsmDI:
             # "input": driver_ps.output(),
             # "1": driver_ps.output(),
             1: driver_ps.output(),
-            2: self.initial_2, # @TODO make this also consider cli params
+            2: self.initial_2,  # @TODO make this also consider cli params
             # "output": {
             # "3": {
             3: {
@@ -360,6 +363,9 @@ class OsmDIDriverWikibaseDataItem(OsmDIDriver):
             return None
 
         wbfetch = WikibaseFetch(self.osmdi.initial_dataitem)
+
+        wbfetch.set_language_preferences(self.osmdi.get_2_env(1))
+
         return wbfetch.get_as_osm_tags()
 
 
@@ -407,6 +413,8 @@ class OsmDIDriverWikibaseWikidata(OsmDIDriver):
             base="https://www.wikidata.org/wiki/Special:EntityData/",
         )
 
+        wbfetch.set_language_preferences(self.osmdi.get_2_env(1))
+
         if self._subcode == 0:
             return wbfetch.get_as_osm_tags()
         if self._subcode == 1:
@@ -423,3 +431,6 @@ def osmdi_input_parser(data_ptr: str) -> dict:
             result = yaml.safe_load(file)
 
     return result
+
+
+

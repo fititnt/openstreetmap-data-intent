@@ -1,10 +1,10 @@
 1:
-  1: # dev explanation
+  1: # dev explanation, natural language
     - - en
-      - list of hospitals without explicitly hints of required fee or being closed
-  2: # user query
+      - list of hospitals without explicitly hints of required fee or being closed in Porto Alegre
+  2: # user query, latural language
     - - pt
-      - hospital gratuito
+      - hospital gratuito em porto alegre
   3: # osm main tags
     - - amenity=hospital
     - - healthcare=hospital
@@ -15,11 +15,24 @@
     - - access=private
     - - operator:type=private
     - - proposed=yes
-  5: # dataitem
+  5: # dataitem (hospital tags)
     - Q4941
     - Q19776
-  10: # wikidata
+  10: # wikidata (hospital concept)
     - Q16917
+  ## inside place, all means the same (Porto Alegre), START
+  20: # inside place, natural language
+    - - pt
+      - Porto Alegre
+  21: # inside place, by OSM tagging
+    - - IBGE:GEOCODIGO=4314902
+      # - wikidata=Q40269
+  22: # inside place, OSM relation
+    - 242397
+  23: # inside place, by Wikidata concept
+    - Q40269
+  # @TODO maybe also implement raw BBOX
+  ## inside place, all means the same (Porto Alegre), END
 2:
   1: # prefered natural languages (to restrict output if too many options)
     - - pt-MZ

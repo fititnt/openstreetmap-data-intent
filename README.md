@@ -53,5 +53,9 @@ Some early comments (2023-09-02) on _how_ to do it (subject to change):
 #### `1.4`: OpenStreetMap tags for exclude data
 #### `1.5`: OpenStreetMap Wikibase Data Item
 #### `1.10`: Wikidata Wikibase Q items
+#### `1.20`: operation inside place, parameter natural language
+#### `1.21`: operation inside place, parameter OSM tagging
+#### `1.22`: operation inside place, parameter OSM relation
+#### `1.23`: operation inside place, parameter Wikidata concept
 ### `2`: environment data
 #### `2.1` prefered natural languages (to restrict output if too many options)
