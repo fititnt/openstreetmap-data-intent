@@ -46,11 +46,12 @@ Some early comments (2023-09-02) on _how_ to do it (subject to change):
 - `2`: environment data (optional)
 - `3`: output data (optional)
 
-### `1`: en, input data
-#### `1.1`: en, natural language expalantion, from developer to developer
-#### `1.2`: en, natural language example of averange user query
+### `1`: input data
+#### `1.1`: natural language expalantion, from developer to developer
+#### `1.2`: natural language example of averange user query
 #### `1.3`: OpenStreetMap tags for select data
 #### `1.4`: OpenStreetMap tags for exclude data
-#### `1.5`: OpenStreetMap tags for exclude data
 #### `1.5`: OpenStreetMap Wikibase Data Item
 #### `1.10`: Wikidata Wikibase Q items
+### `2`: environment data
+#### `2.1` prefered natural languages (to restrict output if too many options)

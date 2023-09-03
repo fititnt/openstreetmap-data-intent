@@ -1,17 +1,28 @@
 1:
-  0: # meta information
-    _description: A hospital facility (not a building) open, not explicitly with fees
-  3: # osmm
+  1: # dev explanation
+    - - en
+      - list of hospitals without explicitly hints of required fee or being closed
+  2: # user query
+    - - pt
+      - hospital gratuito
+  3: # osm main tags
     - - amenity=hospital
     - - healthcare=hospital
-  4: # osmm_not
+  4: #  osm except tags
     - - fee=yes
     - - opening_hours=24/7 off
     - - access=no
     - - access=private
     - - operator:type=private
+    - - proposed=yes
   5: # dataitem
     - Q4941
     - Q19776
   10: # wikidata
     - Q16917
+2:
+  1: # prefered natural languages (to restrict output if too many options)
+    - - pt-MZ
+      - pt
+    - - es-419
+      - es

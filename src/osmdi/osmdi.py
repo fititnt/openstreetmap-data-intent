@@ -20,9 +20,8 @@
 #       CREATED:  ---
 # ==============================================================================
 from abc import ABC
-import json
 import sys
-from typing import Type
+from typing import Type, Union
 import urllib.parse
 import yaml
 
@@ -41,6 +40,8 @@ class OsmDI:
     def __init__(self, osmdi_ast_raw: str, output_format: str = "yaml") -> None:
         osmdi_ast = osmdi_input_parser(osmdi_ast_raw)
         self.output_format = output_format
+        self.initial_1 = None
+        self.initial_2 = None
         self.initial_ast = None
         self.initial_ast_not = None
         self.initial_dataitem = None
@@ -49,46 +50,46 @@ class OsmDI:
         # if isinstance(osmdi_ast, list):
         #     self.initial_ast = osmdi_ast
 
-        if 1 not in osmdi_ast and "1" not in osmdi_ast:
+        if self._get_from_key(osmdi_ast, 1) is None:
             raise SyntaxError("Invalid input file")
 
-        if "1" in osmdi_ast:
-            input_block = osmdi_ast["1"]
-        elif 1 in osmdi_ast:
-            input_block = osmdi_ast[1]
+        self.initial_1 = self._get_from_key(osmdi_ast, 1)
+        self.initial_2 = self._get_from_key(osmdi_ast, 2)
 
-        if "3" in input_block:
-            self.initial_ast = input_block["3"]
-        elif 3 in input_block:
-            self.initial_ast = input_block[3]
+        self.initial_ast = self._get_from_key(osmdi_ast, 1, 3)
+        self.initial_ast_not = self._get_from_key(osmdi_ast, 1, 4)
+        self.initial_dataitem = self._get_from_key(osmdi_ast, 1, 5)
+        self.initial_wdata = self._get_from_key(osmdi_ast, 1, 10)
 
-        if "4" in input_block:
-            self.initial_ast_not = input_block["4"]
-        elif 4 in input_block:
-            self.initial_ast_not = input_block[4]
+    def _get_from_key(
+        self, data_block: dict, key: int, subkey: int = None
+    ) -> Union[dict, list, str, int]:
+        """_summary_
 
-        if "5" in input_block:
-            self.initial_dataitem = input_block["5"]
-        elif 5 in input_block:
-            self.initial_dataitem = input_block[5]
+        Args:
+            data_block (dict): data to slice
+            key (int): key, first level
+            subkey (int, optional): key, second level. Defaults to None.
 
-        if "10" in input_block:
-            self.initial_wdata = input_block["10"]
-        elif 10 in input_block:
-            self.initial_wdata = input_block[10]
+        Returns:
+            Union[dict, list, str, int]: the result data
+        """
+        main = None
 
-        # if isinstance(osmdi_ast, dict) and "osmm" in osmdi_ast:
-        if isinstance(osmdi_ast, dict) and "1" in osmdi_ast:
-            self.initial_ast = osmdi_ast["osmm"]
+        if isinstance(data_block, dict):
+            if key in data_block:
+                main = data_block[key]
+            if str(key) in data_block:
+                main = data_block[str(key)]
 
-            if "wikidata" in osmdi_ast:
-                self.initial_wdata = osmdi_ast["wikidata"]
+            if subkey is not None and isinstance(main, dict):
+                if subkey in main:
+                    return main[subkey]
+                if str(key) in data_block:
+                    main = data_block[str(key)]
+                    return main[str(subkey)]
 
-            if "dataitem" in osmdi_ast:
-                self.initial_dataitem = osmdi_ast["dataitem"]
-
-            if "osmm_not" in osmdi_ast:
-                self.initial_ast_not = osmdi_ast["osmm_not"]
+        return main
 
     def debug(self):
         # print(self.initial_ast)
@@ -105,6 +106,7 @@ class OsmDI:
             # "input": driver_ps.output(),
             # "1": driver_ps.output(),
             1: driver_ps.output(),
+            2: self.initial_2, # @TODO make this also consider cli params
             # "output": {
             # "3": {
             3: {
@@ -310,20 +312,7 @@ class OsmDIDriverPassthrough(OsmDIDriver):
         self._driver_id = 1
 
     def output(self):
-        output = {}
-        if self.osmdi.initial_ast:
-            # output["di"] = self.osmdi.initial_ast
-            output[3] = self.osmdi.initial_ast
-        if self.osmdi.initial_ast_not:
-            output[4] = self.osmdi.initial_ast_not
-        if self.osmdi.initial_dataitem:
-            # output["di_dataitem"] = self.osmdi.initial_dataitem
-            output[5] = self.osmdi.initial_dataitem
-        if self.osmdi.initial_wdata:
-            # output["di_wikidata"] = self.osmdi.initial_wdata
-            output[10] = self.osmdi.initial_wdata
-
-        return output
+        return self.osmdi.initial_1
 
 
 class OsmDIDriverPseudoQL(OsmDIDriver):
