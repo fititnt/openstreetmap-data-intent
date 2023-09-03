@@ -1,3 +1,4 @@
+import json
 import yaml
 
 
@@ -8,12 +9,18 @@ def str_presenter(dumper, data):
 
 
 yaml.add_representer(str, str_presenter)
-
-# to use with safe_dump:
 yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
 
 
 def yaml_dumper(data) -> str:
+    """Convert abstract data into string, with optionated YAML style
+
+    Args:
+        data (Any): input data to export as string
+
+    Returns:
+        str: the output
+    """
     # @see https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data
     return yaml.dump(
         data,
@@ -24,3 +31,15 @@ def yaml_dumper(data) -> str:
         default_flow_style=False,
         line_break=True,
     )
+
+
+def json_dumper(data) -> str:
+    """Convert abstract data into pretty printed JSON string
+
+    Args:
+        data (Any): input data to export as string
+
+    Returns:
+        str: the output
+    """
+    return json.dumps(data, ensure_ascii=False, indent=2)

@@ -9,3 +9,8 @@ jq -S < tests/data/example-003.json | yq -P
 
 yq -P -I 4 < tests/data/example-004.num.yml
 yq -P -I 4 -o props < tests/data/example-004.num.yml
+
+osmdicli tests/data/example-005.osmdi.yml
+
+# shellcheck disable=SC2002
+cat tests/data/example-003.json | osmdicli -O yaml - | yq

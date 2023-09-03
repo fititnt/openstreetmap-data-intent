@@ -29,9 +29,9 @@ def main():
     )
 
     parser.add_argument(
-        'infile',
-        help='Osmdi file (if omitted, use standard input).',
-        nargs='?'
+        "infile",
+        help="Osmdi file (if omitted, use standard input). Use - for stdin",
+        nargs="?",
     )
 
     # parser.add_argument(
@@ -95,9 +95,19 @@ def main():
     #     help="Use STDIN (data piped from other tools) instead of remote API",
     # )
 
-    parser_output = parser.add_argument_group(
-        "output",
-        "Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.",
+    # parser_output = parser.add_argument_group(
+    #     "output",
+    #     "Output options.",
+    # )
+
+    # parser_output.add_argument(
+    parser.add_argument(
+        "-O",
+        "--output-format",
+        choices=["yaml", "json"],
+        default="yaml",
+        help="Output format",
+        dest="out_format",
     )
 
     # parser_output.add_argument(
@@ -138,11 +148,11 @@ def main():
     #     help="(NOT IMPLEMNTED YET) Text content hint for a single file to be printed to stdout",
     # )
 
-    parser_output.add_argument(
-        "--output-raw",
-        action="store_true",
-        help="[DEBUG] Output RAW, unedited Wiki markup (or API response if remote call)",
-    )
+    # parser_output.add_argument(
+    #     "--output-raw",
+    #     action="store_true",
+    #     help="[DEBUG] Output RAW, unedited Wiki markup (or API response if remote call)",
+    # )
 
     # # parser_filter = parser.add_argument_group('filter2', 'Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.')
     # parser_filter = parser.add_argument_group(
@@ -188,8 +198,8 @@ def main():
 
     # print("TODO")
     # osmdi = OsmDI(args.in_compact)
-    osmdi = OsmDI(args.infile)
-    osmdi.debug(True)
+    osmdi = OsmDI(args.infile, output_format=args.out_format)
+    osmdi.debug()
     return EXIT_OK
     # return EXIT_ERROR
 

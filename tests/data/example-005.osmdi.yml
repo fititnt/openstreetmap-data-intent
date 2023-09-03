@@ -1,0 +1,17 @@
+1:
+  0: # meta information
+    _description: A hospital facility (not a building) open, not explicitly with fees
+  3: # osmm
+    - - amenity=hospital
+    - - healthcare=hospital
+  4: # osmm_not
+    - - fee=yes
+    - - opening_hours=24/7 off
+    - - access=no
+    - - access=private
+    - - operator:type=private
+  5: # dataitem
+    - Q4941
+    - Q19776
+  10: # wikidata
+    - Q16917

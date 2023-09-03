@@ -21,12 +21,13 @@
 # ==============================================================================
 from abc import ABC
 import json
+import sys
 from typing import Type
 import urllib.parse
 import yaml
 
 from osmdi.datafetch import WikibaseFetch
-from osmdi.exporter import yaml_dumper
+from osmdi.exporter import json_dumper, yaml_dumper
 
 
 class OsmDI:
@@ -37,17 +38,47 @@ class OsmDI:
     # initial_dataitem: None
     # initial_wdata: None
 
-    def __init__(self, osmdi_ast_raw: str) -> None:
+    def __init__(self, osmdi_ast_raw: str, output_format: str = "yaml") -> None:
         osmdi_ast = osmdi_input_parser(osmdi_ast_raw)
+        self.output_format = output_format
         self.initial_ast = None
         self.initial_ast_not = None
         self.initial_dataitem = None
         self.initial_wdata = None
 
-        if isinstance(osmdi_ast, list):
-            self.initial_ast = osmdi_ast
+        # if isinstance(osmdi_ast, list):
+        #     self.initial_ast = osmdi_ast
 
-        if isinstance(osmdi_ast, dict) and "osmm" in osmdi_ast:
+        if 1 not in osmdi_ast and "1" not in osmdi_ast:
+            raise SyntaxError("Invalid input file")
+
+        if "1" in osmdi_ast:
+            input_block = osmdi_ast["1"]
+        elif 1 in osmdi_ast:
+            input_block = osmdi_ast[1]
+
+        if "3" in input_block:
+            self.initial_ast = input_block["3"]
+        elif 3 in input_block:
+            self.initial_ast = input_block[3]
+
+        if "4" in input_block:
+            self.initial_ast_not = input_block["4"]
+        elif 4 in input_block:
+            self.initial_ast_not = input_block[4]
+
+        if "5" in input_block:
+            self.initial_dataitem = input_block["5"]
+        elif 5 in input_block:
+            self.initial_dataitem = input_block[5]
+
+        if "10" in input_block:
+            self.initial_wdata = input_block["10"]
+        elif 10 in input_block:
+            self.initial_wdata = input_block[10]
+
+        # if isinstance(osmdi_ast, dict) and "osmm" in osmdi_ast:
+        if isinstance(osmdi_ast, dict) and "1" in osmdi_ast:
             self.initial_ast = osmdi_ast["osmm"]
 
             if "wikidata" in osmdi_ast:
@@ -59,7 +90,7 @@ class OsmDI:
             if "osmm_not" in osmdi_ast:
                 self.initial_ast_not = osmdi_ast["osmm_not"]
 
-    def debug(self, as_yaml: bool = False):
+    def debug(self):
         # print(self.initial_ast)
 
         driver_ps = OsmDIDriverPassthrough(self)
@@ -72,29 +103,30 @@ class OsmDI:
 
         debug_out = {
             # "input": driver_ps.output(),
-            "1": driver_ps.output(),
+            # "1": driver_ps.output(),
+            1: driver_ps.output(),
             # "output": {
-            "3": {
+            # "3": {
+            3: {
                 # "driver": {
-                    driver_dwl.get_id(): driver_dwl.output(),
-                    driver_dti.get_id(): driver_dti.output(),
-                    # driver_oqt.driver_id: driver_oqt.output(),
-                    driver_pql.get_id(): driver_pql.output(),
-                    driver_wdi.get_id(): driver_wdi.output(),
-                    driver_wdata.get_id(): driver_wdata.output(),
-                    driver_wdata_q1.get_id(): driver_wdata_q1.output(),
+                driver_dwl.get_id(): driver_dwl.output(),
+                driver_dti.get_id(): driver_dti.output(),
+                # driver_oqt.driver_id: driver_oqt.output(),
+                driver_pql.get_id(): driver_pql.output(),
+                driver_wdi.get_id(): driver_wdi.output(),
+                driver_wdata.get_id(): driver_wdata.output(),
+                driver_wdata_q1.get_id(): driver_wdata_q1.output(),
                 # }
             },
         }
 
-        if as_yaml:
-
-            # yaml.dump()
-            # print(json.dumps(debug_out, ensure_ascii=False, indent=2))
-            # print(yaml.dump(debug_out, allow_unicode=True, indent=2, sort_keys=True, default_flow_style=False, line_break=True))
+        if self.output_format == "yaml":
             print(yaml_dumper(debug_out))
+
+        elif self.output_format == "json":
+            print(json_dumper(debug_out))
         else:
-            print(debug_out)
+            raise NotImplementedError
 
 
 class OsmDIDriver(ABC):
@@ -117,7 +149,7 @@ class OsmDIDriver(ABC):
     def get_id(self):
         if self._subcode < 1:
             return self._driver_id
-        return self._driver_id + "." + str(self._subcode)
+        return float(str(self._driver_id) + "." + str(self._subcode))
 
     def get_option(self, key: str):
         defaults = {"outfmt": "osm"}
@@ -142,7 +174,8 @@ class OsmDIDriverDocTaginfo(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D3"
-        self._driver_id = "3"
+        # self._driver_id = "3"
+        self._driver_id = 3
 
         self.osmdi_ast = self.osmdi.initial_ast
 
@@ -170,7 +203,8 @@ class OsmDIDriverDocWikiLinks(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D2"
-        self._driver_id = "2"
+        # self._driver_id = "2"
+        self._driver_id = 2
         self.osmdi_ast = self.osmdi.initial_ast
 
     def _get_tagvalues(self):
@@ -194,7 +228,8 @@ class OsmDIDriverOverpassQL(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D4"
-        self._driver_id = "4"
+        # self._driver_id = "4"
+        self._driver_id = 4
 
     def output(self):
         return "TODO OsmDIDriverOverpassQL"
@@ -271,18 +306,22 @@ class OsmDIDriverPassthrough(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D1"
-        self._driver_id = "1"
+        # self._driver_id = "1"
+        self._driver_id = 1
 
     def output(self):
         output = {}
         if self.osmdi.initial_ast:
-            output["di"] = self.osmdi.initial_ast
+            # output["di"] = self.osmdi.initial_ast
+            output[3] = self.osmdi.initial_ast
         if self.osmdi.initial_ast_not:
-            output["di_not"] = self.osmdi.initial_ast_not
+            output[4] = self.osmdi.initial_ast_not
         if self.osmdi.initial_dataitem:
-            output["di_dataitem"] = self.osmdi.initial_dataitem
+            # output["di_dataitem"] = self.osmdi.initial_dataitem
+            output[5] = self.osmdi.initial_dataitem
         if self.osmdi.initial_wdata:
-            output["di_wikidata"] = self.osmdi.initial_wdata
+            # output["di_wikidata"] = self.osmdi.initial_wdata
+            output[10] = self.osmdi.initial_wdata
 
         return output
 
@@ -292,7 +331,8 @@ class OsmDIDriverPseudoQL(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D9"
-        self._driver_id = "9"
+        # self._driver_id = "9"
+        self._driver_id = 9
         self.osmdi_ast = self.osmdi.initial_ast
 
     def output(self):
@@ -323,7 +363,8 @@ class OsmDIDriverWikibaseDataItem(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D10"
-        self._driver_id = "10"
+        # self._driver_id = "10"
+        self._driver_id = 10
 
     def output(self):
         if not self.osmdi.initial_dataitem:
@@ -338,7 +379,8 @@ class OsmDIDriverWikibaseWikidata(OsmDIDriver):
 
     def __post_init__(self):
         # self._driver_id = "D11"
-        self._driver_id = "11"
+        # self._driver_id = "11"
+        self._driver_id = 11
 
     def _get_mode_1(self) -> str:
         items = self.osmdi.initial_wdata
@@ -384,7 +426,11 @@ class OsmDIDriverWikibaseWikidata(OsmDIDriver):
 
 
 def osmdi_input_parser(data_ptr: str) -> dict:
-    with open(data_ptr, "r") as file:
-        result = yaml.safe_load(file)
+    if data_ptr == "-":
+        data_str = sys.stdin.read()
+        result = yaml.safe_load(data_str)
+    else:
+        with open(data_ptr, "r") as file:
+            result = yaml.safe_load(file)
 
     return result
