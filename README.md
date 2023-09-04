@@ -29,6 +29,8 @@
 
 ## Installing
 
+At the moment, this package is not on Python Pipi, so install from GitHub.
+
 ```bash
 # pip install osmdi --upgrade
 pip install git+https://github.com/fititnt/openstreetmap-data-intent.git#egg=osmdi
@@ -95,3 +97,13 @@ For files with examples, check [tests/data](tests/data).
 # License
 
 Public domain
+
+<!--
+
+- Potential To Dos/ look later
+  - https://wiki.openstreetmap.org/wiki/Tag:playground%3Dmap (some tags are clicable)
+- https://github.com/fititnt/spatial-data-conflation-open-toolchain
+  - Needs something to export from SPARQL
+    - https://github.com/EticaAI/lexicographi-sine-finibus/blob/main/officina/999999999/0/1603_3_12.py
+
+-->

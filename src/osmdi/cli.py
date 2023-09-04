@@ -43,13 +43,22 @@ def main():
         dest="out_format",
     )
 
+    parser.add_argument(
+        "-F", "--output-filter",
+        # choices=["yaml", "json"],
+        default=None,
+        nargs="?",
+        help="Output filter of numeric keys. Input tags: -F=1.4 .Output Wiki Links: -F=2.4",
+        dest="out_filter",
+    )
+
     # parser.add_argument(
     #     "-v", "--verbose", action="store_true", help="Verbose", dest="verbose"
     # )
 
     args = parser.parse_args()
 
-    osmdi = OsmDI(args.infile, output_format=args.out_format)
+    osmdi = OsmDI(args.infile, output_format=args.out_format, output_filter=args.out_filter)
     osmdi.debug()
     return EXIT_OK
 

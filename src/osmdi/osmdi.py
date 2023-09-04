@@ -37,9 +37,12 @@ class OsmDI:
     # initial_dataitem: None
     # initial_wdata: None
 
-    def __init__(self, osmdi_ast_raw: str, output_format: str = "yaml") -> None:
+    def __init__(
+        self, osmdi_ast_raw: str, output_format: str = "yaml", output_filter: str = None
+    ) -> None:
         osmdi_ast = osmdi_input_parser(osmdi_ast_raw)
         self.output_format = output_format
+        self.output_filter = output_filter
         self.initial_1 = None
         self.initial_2 = None
         self.initial_ast = None
@@ -124,6 +127,10 @@ class OsmDI:
                 # }
             },
         }
+
+        if self.output_filter is not None:
+            pass
+
 
         if self.output_format == "yaml":
             print(yaml_dumper(debug_out))
@@ -431,6 +438,3 @@ def osmdi_input_parser(data_ptr: str) -> dict:
             result = yaml.safe_load(file)
 
     return result
-
-
-
