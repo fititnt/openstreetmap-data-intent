@@ -15,4 +15,4 @@ osmdicli tests/data/example-005.osmdi.yml
 # shellcheck disable=SC2002
 cat tests/data/example-003.json | osmdicli -O yaml - | yq
 # shellcheck disable=SC2002
-cat tests/data/example-003.json | osmdicli -O yaml - | yq
+cat tests/data/example-005.osmdi.yml | osmdicli -O yaml - | yq
