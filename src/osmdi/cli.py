@@ -48,7 +48,7 @@ def main():
         # choices=["yaml", "json"],
         default=None,
         nargs="?",
-        help="Output filter of numeric keys. Input tags: -F=1.4 .Output Wiki Links: -F=2.4",
+        help="Output filter of numeric keys. Input tags: -F=1.4 .Output Wiki Links: -F=3.2",
         dest="out_filter",
     )
 

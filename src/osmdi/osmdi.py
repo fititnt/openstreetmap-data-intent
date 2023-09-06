@@ -82,8 +82,10 @@ class OsmDI:
         if isinstance(data_block, dict):
             if key in data_block:
                 main = data_block[key]
-            if str(key) in data_block:
+            elif str(key) in data_block:
                 main = data_block[str(key)]
+            else:
+                main = None
 
             if subkey is not None and isinstance(main, dict):
                 if subkey in main:
@@ -91,11 +93,38 @@ class OsmDI:
                 if str(key) in data_block:
                     main = data_block[str(key)]
                     return main[str(subkey)]
+                main = None
 
         return main
 
     def get_2_env(self, subkey: int):
         return self._get_from_key(self.initial_2, subkey)
+
+    def get_filtered(self, outdata: dict, filter_rule: str):
+        filtered = None
+
+        if filter_rule is None or len(filter_rule.strip()) == 0:
+            return outdata
+
+        # print(filter_rule)
+        # print(outdata)
+
+        parts = filter_rule.strip().split(".")
+        if len(parts) == 1:
+            filtered = self._get_from_key(outdata, int(parts[0]))
+        elif len(parts) == 2:
+            filtered = self._get_from_key(outdata, int(parts[0]), int(parts[1]))
+        elif len(parts) == 3:
+            # example <[3.11.1]>
+            part2 = parts[1] + "." + parts[2]
+            filtered = self._get_from_key(outdata, int(parts[0]), part2)
+        else:
+            raise NotImplementedError(
+                f"get_filtered args number is unknow from this rule <[{filter_rule}]>"
+            )
+        # print(filtered)
+        # raise NotImplementedError
+        return filtered
 
     def debug(self):
         # print(self.initial_ast)
@@ -129,8 +158,7 @@ class OsmDI:
         }
 
         if self.output_filter is not None:
-            pass
-
+            debug_out = self.get_filtered(debug_out, self.output_filter)
 
         if self.output_format == "yaml":
             print(yaml_dumper(debug_out))
